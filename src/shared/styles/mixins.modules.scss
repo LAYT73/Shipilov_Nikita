@@ -1,0 +1,26 @@
+@use 'sass:map';
+@use '@/shared/styles/variables.modules.scss' as *;
+
+@mixin flex-container($justify: flex-start, $align: stretch) {
+    display: flex;
+    justify-content: $justify;
+    align-items: $align;
+}
+
+@mixin button-style($bg-color, $text-color, $hover-color) {
+    padding: 16px 24px;
+    border: 1px solid get-color('grey-15');
+    color: $text-color;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: all 0.4s;
+    background: $bg-color;
+
+    &:hover {
+        background: $hover-color;
+    }
+
+    &:active {
+        border: 1px solid get-color('purple-60');
+    }
+}

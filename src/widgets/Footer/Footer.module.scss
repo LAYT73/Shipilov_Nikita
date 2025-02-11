@@ -1,0 +1,156 @@
+@use '@/shared/styles/mixins.modules.scss' as mixins;
+@use '@/shared/styles/variables.modules.scss' as *;
+
+.footer {
+    background: get-color('grey-08');
+
+    &__top {
+        @include mixins.flex-container(space-between, center);
+        padding: 100px 162px;
+        border: 1px solid get-color('grey-15');
+        gap: 250px;
+        background: url('../../assets/images/FooterBackground.png');
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+
+    &__content {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    &__title {
+        font-size: 48px;
+        font-weight: bold;
+    }
+
+    &__description {
+        font-size: 16px;
+        color: get-color('grey-60');
+    }
+
+    &__button {
+        background: get-color('purple-60');
+        color: get-color('white');
+        padding: 16px 24px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.4s;
+        min-width: max-content;
+
+        &:hover {
+            background: get-color('purple-50');
+        }
+
+        &:active {
+            background: get-color('purple-40');
+        }
+    }
+
+    &__middle {
+        @include mixins.flex-container(space-between, center);
+        padding: 100px 162px;
+        gap: 192px;
+    }
+
+    &__brand {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    &__logo {
+        width: 160px;
+    }
+
+    &__subscribe {
+        display: flex;
+        height: 66px;
+        width: 420px;
+        border: 1px solid get-color('grey-15');
+        padding: 20px 24px;
+        border-radius: 12px;
+        justify-content: space-between;
+    }
+
+    &__icon {
+        width: 24px;
+    }
+
+    &__input {
+        background-color: get-color('grey-08');
+        width: calc(100% - 68px);
+        border: none;
+        font-size: 18px;
+        color: get-color('grey-60');
+
+        &:focus {
+            border: none;
+            outline: none;
+        }
+    }
+
+    &__send {
+        @include mixins.flex-container(center, center);
+        max-width: 24px;
+        max-height: 24px;
+        padding: 0;
+        border: none;
+
+        img {
+            min-width: 24px;
+            min-height: 24px;
+            transition: all 0.4s;
+
+            &:hover {
+                transform: scale(1.1);
+            }
+        }
+
+        &:hover {
+            background: none;
+        }
+    }
+
+    &__nav {
+        display: flex;
+        gap: 100px;
+    }
+
+    &__navSection {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    &__navTitle {
+        font-size: 20px;
+        color: get-color('grey-60');
+    }
+
+    &__navList {
+        list-style: none;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    &__navItem {
+        font-size: 18px;
+        color: get-color('grey-60');
+    }
+
+    &__bottom {
+        @include mixins.flex-container(space-between, center);
+        text-align: center;
+        font-size: 18px;
+        height: 104px;
+        padding: 30px 162px;
+        background-color: get-color('grey-10');
+        color: get-color('grey-60');
+    }
+}

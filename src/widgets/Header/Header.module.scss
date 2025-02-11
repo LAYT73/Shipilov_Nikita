@@ -1,0 +1,54 @@
+@use '@/shared/styles/mixins.modules.scss' as mixins;
+@use '@/shared/styles/variables.modules.scss' as *;
+
+.header {
+    @include mixins.flex-container(center, center);
+    width: 100%;
+    height: 100px;
+    background-color: get-color('grey-10');
+    border-bottom: 1px solid get-color('grey-15');
+
+    .container {
+        @include mixins.flex-container(space-between, center);
+        padding: 0 24px;
+        width: 1648px;
+
+        .header__logo {
+            @include mixins.flex-container(center, center);
+            gap: 10px;
+        }
+
+        .header__nav {
+            .nav__list {
+                list-style-type: none;
+                @include mixins.flex-container(flex-start, center);
+                gap: 12px;
+
+                .nav__item {
+                    @include mixins.button-style(
+                        get-color('grey-10'),
+                        get-color('white'),
+                        get-color('grey-08')
+                    );
+                    border: 1px solid #26262600;
+                    &:hover {
+                        border: 1px solid get-color('grey-15');
+                    }
+
+                    &:active {
+                        border: 1px solid get-color('purple-60');
+                    }
+                }
+
+                .active {
+                    background: get-color('grey-08');
+                    border: 1px solid get-color('grey-15');
+                }
+            }
+        }
+    }
+}
+
+button {
+    @include mixins.button-style(get-color('grey-08'), get-color('white'), get-color('purple-60'));
+}
