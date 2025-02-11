@@ -1,6 +1,5 @@
 @use 'sass:map';
 
-// Цвета
 $grey-60: #999999;
 $grey-50: #808080;
 $grey-40: #666666;
@@ -8,18 +7,11 @@ $grey-30: #4d4d4d;
 $grey-20: #333333;
 $grey-15: #262626;
 $grey-10: #1a1a1a;
-$grey-08: #141414;
+$grey-08: #0c0c0c;
 
-$purple-99: #fbfaff;
-$purple-97: #f4f0fe;
-$purple-95: #ede7fe;
-$purple-90: #dbcefd;
-$purple-75: #a685fa;
-$purple-70: #946cf9;
-$purple-65: #8254f8;
-$purple-60: #703bf7;
-$purple-50: #5f3dc4;
-$purple-40: #4c2aa8;
+$pink-60: #ff6ba4;
+$pink-50: #f75895;
+$pink-40: #ff3b85;
 
 $white: #ffffff;
 $black: #000000;
@@ -33,16 +25,9 @@ $colors: (
     'grey-15': $grey-15,
     'grey-10': $grey-10,
     'grey-08': $grey-08,
-    'purple-99': $purple-99,
-    'purple-97': $purple-97,
-    'purple-95': $purple-95,
-    'purple-90': $purple-90,
-    'purple-75': $purple-75,
-    'purple-70': $purple-70,
-    'purple-65': $purple-65,
-    'purple-60': $purple-60,
-    'purple-50': $purple-50,
-    'purple-40': $purple-40,
+    'pink-60': $pink-60,
+    'pink-50': $pink-50,
+    'pink-40': $pink-40,
     'white': $white,
     'black': $black,
 );

@@ -149,7 +149,8 @@
         text-align: center;
         font-size: 18px;
         height: 104px;
-        padding: 30px 162px;
+        display: flex;
+        justify-content: center;
         background-color: get-color('grey-10');
         color: get-color('grey-60');
     }
