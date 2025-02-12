@@ -1,79 +1,174 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+// eslint-disable-next-line
+// @ts-nocheck
+
+import React, { useEffect, useRef } from 'react';
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer';
 import styles from './About.module.scss';
-import PortraitImg from '@/assets/images/PortraitAbout.png';
 
 const About: React.FC = () => {
-    const text = 'Nikita Shipilov';
+    const mountRef = useRef<HTMLDivElement>(null);
 
-    const containerVariants = {
-        hidden: { opacity: 0, y: -50 },
-        visible: { opacity: 1, y: 0, transition: { duration: 0.5, staggerChildren: 0.2 } },
-    };
+    useEffect(() => {
+        if (!mountRef.current) return;
 
-    const textVariants = {
-        hidden: { opacity: 0 },
-        visible: (i: number) => ({
-            opacity: 1,
-            transition: {
-                delay: i * 0.1,
+        const { clientWidth, clientHeight } = mountRef.current;
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, clientWidth / clientHeight, 0.1, 1000);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(clientWidth, clientHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        mountRef.current.appendChild(renderer.domElement);
+
+        const labelRenderer = new CSS2DRenderer();
+        labelRenderer.setSize(clientWidth, clientHeight);
+        labelRenderer.domElement.style.position = 'absolute';
+        labelRenderer.domElement.style.top = '0';
+        mountRef.current.appendChild(labelRenderer.domElement);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
+        directionalLight.position.set(10, 10, 10);
+        scene.add(directionalLight);
+
+        const radius = 6;
+        const widthSegments = 32;
+        const heightSegments = 32;
+        const sphereGeometry = new THREE.SphereGeometry(radius, widthSegments, heightSegments);
+        const textureLoader = new THREE.TextureLoader();
+
+        const earthTexture = textureLoader.load('/src/assets/images/earth.jpg');
+        const earthMaterial = new THREE.MeshStandardMaterial({ map: earthTexture });
+        const earthMesh = new THREE.Mesh(sphereGeometry, earthMaterial);
+        scene.add(earthMesh);
+
+        const glowMaterial = new THREE.ShaderMaterial({
+            uniforms: {
+                viewVector: { value: camera.position },
             },
-        }),
-    };
+            vertexShader: `
+        uniform vec3 viewVector;
+        varying float intensity;
+        void main() {
+            vec3 vNormal = normalize(normalMatrix * normal);
+            vec3 vNormel = normalize(normalMatrix * viewVector);
+            intensity = pow(0.5 - dot(vNormal, vNormel), 5.0);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 0.9);
+        }
+      `,
+            fragmentShader: `
+        varying float intensity;
+        void main() {
+            vec3 glow = vec3(0.3, 0.6, 1.0) * intensity;
+            gl_FragColor = vec4(glow, 0.3);
+        }
+      `,
+            side: THREE.BackSide,
+            blending: THREE.AdditiveBlending,
+            transparent: true,
+        });
+        const glowSphere = new THREE.Mesh(sphereGeometry, glowMaterial);
+        glowSphere.scale.set(1.1, 1.1, 1.1);
+        scene.add(glowSphere);
+
+        const markerGeometry = new THREE.SphereGeometry(0.15, 16, 16);
+        const markerMaterial = new THREE.MeshBasicMaterial({ color: '#ff3b85' });
+        const markerMesh = new THREE.Mesh(markerGeometry, markerMaterial);
+
+        const lat = (54.3282 * Math.PI) / 180;
+        const lon = (220 * Math.PI) / 180;
+
+        const x = -1 * radius * Math.cos(lat) * Math.sin(lon);
+        const y = radius * Math.sin(lat);
+        const z = radius * Math.cos(lat) * Math.cos(lon);
+
+        const markerPos = new THREE.Vector3(x, y, z).multiplyScalar(1.02);
+        markerMesh.position.copy(markerPos);
+
+        earthMesh.add(markerMesh);
+
+        const markerLabelDiv = document.createElement('div');
+        markerLabelDiv.className = 'label';
+        markerLabelDiv.textContent = 'Ульяновск';
+        markerLabelDiv.style.color = 'white';
+        markerLabelDiv.style.fontSize = '16px';
+        markerLabelDiv.style.backgroundColor = 'rgba(0,0,0,0.5)';
+        markerLabelDiv.style.padding = '2px 4px';
+        markerLabelDiv.style.borderRadius = '4px';
+
+        const markerLabel = new CSS2DObject(markerLabelDiv);
+
+        markerLabel.position.set(0, 0.3, 0);
+        markerMesh.add(markerLabel);
+
+        const particles = 800;
+        const positions = new Float32Array(particles * 3);
+        for (let i = 0; i < particles; i++) {
+            positions[i * 3] = (Math.random() - 0.5) * 100;
+            positions[i * 3 + 1] = (Math.random() - 0.5) * 100;
+            positions[i * 3 + 2] = (Math.random() - 0.5) * 100;
+        }
+        const particleGeometry = new THREE.BufferGeometry();
+        particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        const particleMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.1 });
+        const particlesMesh = new THREE.Points(particleGeometry, particleMaterial);
+        scene.add(particlesMesh);
+
+        earthMesh.rotation.y = lon;
+        earthMesh.rotation.x = -lat + Math.PI / 2;
+
+        camera.position.set(0, 3, 16);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableZoom = false;
+        controls.enablePan = false;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = -1.6;
+        controls.mouseButtons = {
+            LEFT: THREE.MOUSE.ROTATE,
+            MIDDLE: THREE.MOUSE.DOLLY,
+            RIGHT: THREE.MOUSE.PAN,
+        };
+        controls.onContextMenu = () => {};
+
+        const animate = () => {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+        };
+        animate();
+
+        const handleResize = () => {
+            if (!mountRef.current) return;
+            const { clientWidth, clientHeight } = mountRef.current;
+            camera.aspect = clientWidth / clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(clientWidth, clientHeight);
+            labelRenderer.setSize(clientWidth, clientHeight);
+        };
+        window.addEventListener('resize', handleResize);
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            mountRef.current?.removeChild(renderer.domElement);
+            mountRef.current?.removeChild(labelRenderer.domElement);
+            renderer.dispose();
+        };
+    }, []);
 
     return (
-        <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={containerVariants}
-            className={styles.about}
-        >
-            <div className={styles.about__info}>
-                <div className={styles.info__border}></div>
-                <div className={styles.info__text}>
-                    <h1>
-                        This is your <br /> Fronted developer <br />
-                        <span>
-                            {text.split('').map((char, index) => (
-                                <motion.span
-                                    key={index}
-                                    custom={index}
-                                    initial="hidden"
-                                    animate="visible"
-                                    variants={textVariants}
-                                >
-                                    {char}
-                                </motion.span>
-                            ))}
-                        </span>
-                    </h1>
-                    <p>
-                        I am a Frontend Developer with <strong>2+ years of experience</strong>. I
-                        have a passion for web development and love to create responsive and
-                        user-friendly websites. I am always looking for new opportunities to learn
-                        and grow in the field of web development.
-                    </p>
-                    <div className={styles.info__buttons}>
-                        <button>
-                            <svg
-                                width="24"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path
-                                    d="M12 0.296997C5.37 0.296997 0 5.67 0 12.297C0 17.6 3.438 22.097 8.205 23.682C8.805 23.795 9.025 23.424 9.025 23.105C9.025 22.82 9.015 22.065 9.01 21.065C5.672 21.789 4.968 19.455 4.968 19.455C4.422 18.07 3.633 17.7 3.633 17.7C2.546 16.956 3.717 16.971 3.717 16.971C4.922 17.055 5.555 18.207 5.555 18.207C6.625 20.042 8.364 19.512 9.05 19.205C9.158 18.429 9.467 17.9 9.81 17.6C7.145 17.3 4.344 16.268 4.344 11.67C4.344 10.36 4.809 9.29 5.579 8.45C5.444 8.147 5.039 6.927 5.684 5.274C5.684 5.274 6.689 4.952 8.984 6.504C9.944 6.237 10.964 6.105 11.984 6.099C13.004 6.105 14.024 6.237 14.984 6.504C17.264 4.952 18.269 5.274 18.269 5.274C18.914 6.927 18.509 8.147 18.389 8.45C19.154 9.29 19.619 10.36 19.619 11.67C19.619 16.28 16.814 17.295 14.144 17.59C14.564 17.95 14.954 18.686 14.954 19.81C14.954 21.416 14.939 22.706 14.939 23.096C14.939 23.411 15.149 23.786 15.764 23.666C20.565 22.092 24 17.592 24 12.297C24 5.67 18.627 0.296997 12 0.296997Z"
-                                    fill="white"
-                                ></path>
-                            </svg>
-                            <span>GitHub</span>
-                        </button>
-                    </div>
-                </div>
-                <img src={PortraitImg} alt="" />
+        <div className={styles.about}>
+            <div className={styles.textBlock}>
+                <h1>About Me</h1>
+                <p>My text content here...</p>
             </div>
-        </motion.div>
+            <div className={styles.canvasContainer} ref={mountRef} />
+        </div>
     );
 };
 
