@@ -1,9 +1,4 @@
-import {
-    createPluralize,
-    I18N,
-    useI18N as useI18nBase,
-    useTranslate as useTranslateBase,
-} from '@ayub-begimkulov/i18n';
+import { createPluralize, I18N, useTranslate as useTranslateBase } from '@ayub-begimkulov/i18n';
 
 import en from './keys/en.json';
 import ru from './keys/ru.json';
@@ -26,5 +21,3 @@ export const i18n = new I18N({
 });
 
 export const useTranslate = useTranslateBase<typeof i18n>;
-
-export const useI18N = useI18nBase<typeof i18n>;

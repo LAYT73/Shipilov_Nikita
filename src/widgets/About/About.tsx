@@ -29,7 +29,7 @@ const About: React.FC = () => {
         labelRenderer.domElement.style.top = '0';
         mountRef.current.appendChild(labelRenderer.domElement);
 
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
         scene.add(ambientLight);
         const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
         directionalLight.position.set(10, 10, 10);
@@ -41,7 +41,7 @@ const About: React.FC = () => {
         const sphereGeometry = new THREE.SphereGeometry(radius, widthSegments, heightSegments);
         const textureLoader = new THREE.TextureLoader();
 
-        const earthTexture = textureLoader.load('/src/assets/images/earth.jpg');
+        const earthTexture = textureLoader.load('/earth.jpg');
         const earthMaterial = new THREE.MeshStandardMaterial({ map: earthTexture });
         const earthMesh = new THREE.Mesh(sphereGeometry, earthMaterial);
         scene.add(earthMesh);
@@ -56,15 +56,15 @@ const About: React.FC = () => {
         void main() {
             vec3 vNormal = normalize(normalMatrix * normal);
             vec3 vNormel = normalize(normalMatrix * viewVector);
-            intensity = pow(0.5 - dot(vNormal, vNormel), 5.0);
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 0.9);
+            intensity = pow(0.5 - dot(vNormal, vNormel), 7.0);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 0.8);
         }
       `,
             fragmentShader: `
         varying float intensity;
         void main() {
             vec3 glow = vec3(0.3, 0.6, 1.0) * intensity;
-            gl_FragColor = vec4(glow, 0.3);
+            gl_FragColor = vec4(glow, 0.32);
         }
       `,
             side: THREE.BackSide,
@@ -127,21 +127,39 @@ const About: React.FC = () => {
         controls.enableZoom = false;
         controls.enablePan = false;
         controls.autoRotate = true;
-        controls.autoRotateSpeed = -1.6;
+        controls.enableRotate = false;
+        controls.autoRotateSpeed = -0.4;
+        let rotateDirection = 1;
+        let rotateTime = 0;
+        const rotateDuration = 10 * 1000; // 10 seconds
+
+        const updateRotation = (delta: number) => {
+            rotateTime += delta;
+            if (rotateTime >= rotateDuration) {
+                rotateDirection *= -1;
+                rotateTime = 0;
+            }
+            controls.autoRotateSpeed = rotateDirection * 0.2;
+        };
+
+        const clock = new THREE.Clock();
+
+        const animate = () => {
+            requestAnimationFrame(animate);
+            const delta = clock.getDelta();
+            updateRotation(delta * 1000);
+            controls.update();
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+        };
+        animate();
+
         controls.mouseButtons = {
             LEFT: THREE.MOUSE.ROTATE,
             MIDDLE: THREE.MOUSE.DOLLY,
             RIGHT: THREE.MOUSE.PAN,
         };
         controls.onContextMenu = () => {};
-
-        const animate = () => {
-            requestAnimationFrame(animate);
-            controls.update();
-            renderer.render(scene, camera);
-            labelRenderer.render(scene, camera);
-        };
-        animate();
 
         const handleResize = () => {
             if (!mountRef.current) return;
@@ -162,10 +180,19 @@ const About: React.FC = () => {
     }, []);
 
     return (
-        <div className={styles.about}>
+        <div id="about" className={styles.about}>
             <div className={styles.textBlock}>
-                <h1>About Me</h1>
-                <p>My text content here...</p>
+                <div className={styles.hero__info}>
+                    <div className={styles.info__border}></div>
+                    <h5>#About Me</h5>
+                    <h2>Who am i?</h2>
+                    <p>
+                        I am a passionate software developer with a strong interest in web
+                        technologies and 3D graphics. I enjoy creating interactive and visually
+                        appealing applications using modern frameworks and libraries. My goal is to
+                        continuously learn and improve my skills to build innovative solutions.
+                    </p>
+                </div>
             </div>
             <div className={styles.canvasContainer} ref={mountRef} />
         </div>

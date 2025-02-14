@@ -13,6 +13,13 @@ const Header: React.FC = () => {
         visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
     };
 
+    const handleScroll = (id: string) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+
     return (
         <motion.header
             className={styles.header}
@@ -42,7 +49,11 @@ const Header: React.FC = () => {
                 </motion.div>
                 <motion.div className={styles.header__nav} variants={itemVariants}>
                     <ul className={styles.nav__list}>
-                        <motion.li className={styles.nav__item} variants={itemVariants}>
+                        <motion.li
+                            className={styles.nav__item}
+                            variants={itemVariants}
+                            onClick={() => handleScroll('about')}
+                        >
                             / About
                         </motion.li>
                         <motion.li className={styles.nav__item} variants={itemVariants}>

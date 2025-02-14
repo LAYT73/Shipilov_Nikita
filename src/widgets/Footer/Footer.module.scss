@@ -6,7 +6,7 @@
 
     &__top {
         @include mixins.flex-container(space-between, center);
-        padding: 100px 162px;
+        padding: 50px 0;
         border: 1px solid get-color('grey-15');
         gap: 250px;
         background: url('../../assets/images/FooterBackground.png');
@@ -148,7 +148,7 @@
         @include mixins.flex-container(space-between, center);
         text-align: center;
         font-size: 18px;
-        height: 104px;
+        height: 80px;
         display: flex;
         justify-content: center;
         background-color: get-color('grey-10');
